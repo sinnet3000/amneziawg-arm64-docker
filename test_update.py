@@ -5,7 +5,7 @@ import io
 import json
 import unittest
 import urllib.error
-from contextlib import redirect_stderr
+from datetime import date
 from unittest import mock
 
 import update
@@ -65,7 +65,10 @@ class NewestTagTests(unittest.TestCase):
 class AlpineCandidatesTests(unittest.TestCase):
     def _feed(self, branches):
         payload = json.dumps({"release_branches": branches})
-        with mock.patch.object(update, "get", return_value=payload):
+        fake_date = mock.Mock(wraps=date)
+        fake_date.today.return_value = date(2026, 9, 24)
+        with mock.patch.object(update, "get", return_value=payload), \
+             mock.patch.object(update, "date", fake_date):
             return update.alpine_candidates()
 
     def test_filters_branches_newest_first(self):
@@ -77,7 +80,7 @@ class AlpineCandidatesTests(unittest.TestCase):
             {"rel_branch": "main", "branch_date": "2020-01-01", "eol_date": "2099-01-01"},
             {"rel_branch": "v3.21.0", "branch_date": "2025-01-01", "eol_date": "2027-01-01"},
         ])
-        # 3.20 EOL before today (2026-09-24); non vX.Y and patch branches dropped; newest first.
+        # 3.20 EOL before the mocked today (2026-09-24); non vX.Y and patch branches dropped; newest first.
         self.assertEqual(got, ["3.24", "3.23", "3.22"])
 
     def test_missing_eol_date_is_not_supported(self):
