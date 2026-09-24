@@ -81,7 +81,7 @@ client (AmneziaWG 3.1)  --udp/51820-->  host  --docker port publish-->  containe
 | `docker run --privileged --cap-add SYS_MODULE -v /lib/modules` | `--cap-add NET_ADMIN --device /dev/net/tun` only |
 | `amneziawg-go:latest`, `apk upgrade`, `--no-cache --pull` | Source build at pinned commits, no `apk upgrade` |
 | A dedicated `amnezia-dns` container and network | The default Docker bridge; client DNS is a plain setting |
-| `--restart always`, logging off | `--restart unless-stopped`, 128 MB memory cap, `--pids-limit 100`, small local log, `net.ipv4.ip_forward=1` set explicitly |
+| `--restart always`, logging off | `--restart unless-stopped`, 512 MB memory cap (`AWG_MEMORY` to override; 128 MB got `amneziawg-go` OOM-killed under load), `--pids-limit 100`, small local log, `net.ipv4.ip_forward=1` set explicitly |
 | The script keeps idling if setup fails | `start.sh` exits non-zero on a missing config or a failed step, so the failure shows |
 
 ## Parameters
