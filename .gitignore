@@ -1,0 +1,5 @@
+# generated secrets - never commit
+data/
+*.conf
+*.png
+__pycache__/
