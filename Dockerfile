@@ -26,7 +26,8 @@ FROM ${ALPINE_IMAGE}
 ARG AWG_GO_TAG
 ARG AWG_TOOLS_TAG
 LABEL org.opencontainers.image.title="amneziawg" amneziawg.go="${AWG_GO_TAG}" amneziawg.tools="${AWG_TOOLS_TAG}"
-RUN apk add --no-cache iproute2 iptables bash dumb-init
+# upgrade first: the pinned base image does not get Alpine's later package fixes by itself
+RUN apk upgrade --no-cache && apk add --no-cache iproute2 iptables bash dumb-init
 COPY --from=tools /t/src/wg /usr/bin/awg
 COPY --from=tools /t/src/wg-quick/linux.bash /usr/bin/awg-quick
 COPY --from=awg /out/amneziawg-go /usr/bin/amneziawg-go

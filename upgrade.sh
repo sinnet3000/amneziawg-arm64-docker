@@ -11,10 +11,6 @@ NAME=${NAME:-amneziawg}
 
 old_img=$(docker inspect -f '{{.Image}}' "$NAME" 2>/dev/null || true)
 ./build.sh
-new_id=$(docker image inspect -f '{{.Id}}' "$IMG")
-if [ -n "$old_img" ] && [ "$old_img" = "$new_id" ]; then
-  echo "container $NAME already runs $IMG; nothing to do"; exit 0
-fi
 
 docker rm -f "$NAME" >/dev/null 2>&1 || true
 healthy() {

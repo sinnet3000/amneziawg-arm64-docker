@@ -79,7 +79,7 @@ client (AmneziaWG 3.1)  --udp/51820-->  host  --docker port publish-->  containe
 |---|---|
 | `setup_host_firewall.sh` (drops ICMP echo, sets host sysctls including `hybla`, adds FORWARD jumps) | Not run. The host changes only through Docker's own port-publish rules |
 | `docker run --privileged --cap-add SYS_MODULE -v /lib/modules` | `--cap-add NET_ADMIN --device /dev/net/tun` only |
-| `amneziawg-go:latest`, `apk upgrade`, `--no-cache --pull` | Source build at pinned commits, no `apk upgrade` |
+| `amneziawg-go:latest`, `apk upgrade`, `--no-cache --pull` | Source build at pinned commits on digest-pinned bases, with `apk upgrade` and `--no-cache` |
 | A dedicated `amnezia-dns` container and network | The default Docker bridge; client DNS is a plain setting |
 | `--restart always`, logging off | `--restart unless-stopped`, 512 MB memory cap (`AWG_MEMORY` to override; 128 MB got `amneziawg-go` OOM-killed under load), `--pids-limit 100`, small local log, `net.ipv4.ip_forward=1` set explicitly |
 | The script keeps idling if setup fails | `start.sh` exits non-zero on a missing config or a failed step, so the failure shows |
@@ -112,10 +112,14 @@ recreates the container with the same port and config. It never touches `data/`,
 config stay valid. If the new container is unhealthy after a few seconds, the script prints its logs, starts
 the previous image again and exits 1. Expect a few seconds of downtime.
 
-After an upgrade, check that a client reconnects and commit `versions.env`. `docker image prune` removes the
-old images.
+Every build skips the build cache and runs `apk upgrade`, so `upgrade.sh` always recreates the container,
+even when `versions.env` has not changed. `update.py` does not check individual Alpine packages: run
+`./upgrade.sh` monthly to pick up their fixes.
 
-Pinned means frozen. A container you never upgrade keeps its old Alpine and Go, without their security fixes.
+After an upgrade, check that a client reconnects and commit `versions.env` if it changed.
+`docker image prune` removes the old images.
+
+A container you never upgrade keeps its old Alpine packages and Go, without their security fixes.
 Run `./update.py` now and then. It only reads, so it also works from cron.
 
 ## Files
